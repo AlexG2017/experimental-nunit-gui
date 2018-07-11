@@ -42,6 +42,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -51,6 +52,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Presenters\AddinsPresenter.cs" />
+    <Compile Include="Presenters\ButtonElement.cs" />
     <Compile Include="Presenters\CategoryGrouping.cs" />
     <Compile Include="Presenters\GroupDisplayStrategy.cs" />
     <Compile Include="Presenters\DurationGrouping.cs" />
@@ -82,7 +84,14 @@
     <Compile Include="Views\AddinPages\ExtensionPointView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Views\CategoryView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\CategoryView.Designer.cs">
+      <DependentUpon>CategoryView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\IAddinsView.cs" />
+    <Compile Include="Views\ICategoryView.cs" />
     <Compile Include="Views\IDialog.cs" />
     <Compile Include="Views\IDialogManager.cs" />
     <Compile Include="Views\IMainView.cs" />
@@ -165,6 +174,9 @@
     <Compile Include="XmlHelper.cs" />
     <EmbeddedResource Include="Views\AddinPages\AddinsView.resx">
       <DependentUpon>AddinsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\CategoryView.resx">
+      <DependentUpon>CategoryView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

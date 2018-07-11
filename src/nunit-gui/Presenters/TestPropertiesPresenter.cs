@@ -99,7 +99,7 @@ namespace NUnit.Gui.Presenters
             _view.TestType = GetTestType(testNode);
             _view.FullName = testNode.FullName;
             _view.Description = testNode.GetProperty("Description");
-            _view.Categories = testNode.GetPropertyList("Category");
+            _view.Categories = string.Join(", ", testNode.Categories);
             _view.TestCount = testNode.TestCount.ToString();
             _view.RunState = testNode.RunState.ToString();
             _view.SkipReason = testNode.GetProperty("_SKIPREASON");

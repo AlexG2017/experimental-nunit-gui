@@ -64,8 +64,9 @@ namespace NUnit.Gui.Presenters.TestTree
         [Test]
         public void ToolStrip_RunFailedCommand_RunsAllTests()
         {
+            var testGroup = new TestGroup("RunTests");
             _view.RunFailedCommand.Execute += Raise.Event<CommandHandler>();
-            _model.Received().RunAllTests();
+            _model.Received().RunTests(testGroup);
         }
 
         [Test]

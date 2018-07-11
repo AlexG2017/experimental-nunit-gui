@@ -42,9 +42,12 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ArrayExtensions.cs" />
+    <Compile Include="CategoryExplorer.cs" />
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="EnginePackageSettings.cs" />
     <Compile Include="ExtensionAttribute.cs" />
+    <Compile Include="Model\GenericEventArgs.cs" />
     <Compile Include="Model\ITestItem.cs" />
     <Compile Include="Model\ITestModel.cs" />
     <Compile Include="Model\ResultNode.cs" />

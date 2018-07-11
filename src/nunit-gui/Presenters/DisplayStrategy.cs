@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
@@ -64,6 +65,7 @@ namespace NUnit.Gui.Presenters
             _settings = new SettingsModel(_model.GetService<ISettings>());
 
             this.Tree = view.Tree;
+            AddTreeViewCheckValidation();
         }
 
         #endregion
@@ -94,7 +96,7 @@ namespace NUnit.Gui.Presenters
         public virtual void OnTestFinished(ResultNode result)
         {
             int imageIndex = CalcImageIndex(result.Outcome);
-            foreach(TreeNode treeNode in GetTreeNodesForTest(result))
+            foreach (TreeNode treeNode in GetTreeNodesForTest(result))
                 Tree.SetImageIndex(treeNode, imageIndex);
         }
 
@@ -112,6 +114,75 @@ namespace NUnit.Gui.Presenters
                 if (treeControl != null) // TODO: Null when mocking - fix this
                     foreach (TreeNode treeNode in treeControl.Nodes)
                         ApplyResultsToTree(treeNode);
+            }
+        }
+
+        public virtual void ClearTestResults()
+        {
+            TreeView treeControl = Tree.Control;
+
+            if (treeControl != null) // TODO: Null when mocking - fix this
+            {
+                Tree.InvokeIfRequired(() =>
+                {
+                    foreach (TreeNode treeNode in treeControl.Nodes)
+                        ApplyResultsToTree(treeNode);
+                });
+            }
+        }
+
+        public void Filter(Predicate<ITestItem> predicate, bool exclude)
+        {
+            TestNode testNode = _model.Tests;
+            TreeView treeControl = Tree.Control;
+            if (testNode != null && treeControl != null)
+            {
+                treeControl.BeginUpdate();
+                foreach (TreeNode treeNode in treeControl.Nodes)
+                {
+                    ApplyFilter(treeNode, predicate, exclude, exclude);
+                }
+                treeControl.EndUpdate();
+            }
+        }
+
+        protected virtual void ApplyFilter(TreeNode treeNode, Predicate<ITestItem> predicate, bool exclude, bool parentFiltered = false)
+        {
+            TestNode item = treeNode.Tag as TestNode;
+            if (item != null && (item.Type == TestNode.TestCase || item.Type == TestNode.TestFixture))
+            {
+                parentFiltered = exclude
+                    ? parentFiltered && predicate(item)
+                    : parentFiltered || predicate(item);
+                if (!parentFiltered)
+                {
+                    treeNode.ForeColor = SystemColors.GrayText;
+                    treeNode.Checked = false;
+                    item.SetRunState(RunState.Skipped);
+                }
+                else
+                {
+                    treeNode.ForeColor = SystemColors.ControlText;
+                    item.ResetRunState();
+                }
+            }
+
+            foreach (TreeNode child in treeNode.Nodes)
+            {
+                ApplyFilter(child, predicate, exclude, parentFiltered);
+            }
+        }
+
+        protected virtual void AddTreeViewCheckValidation()
+        {
+            var treeView = Tree?.Control;
+            if (treeView != null)
+            {
+                treeView.BeforeCheck += (sender, e) =>
+                {
+                    TestNode item = e.Node?.Tag as TestNode;
+                    e.Cancel = !(item == null || item.CanRun());
+                };
             }
         }
 
@@ -180,6 +251,10 @@ namespace NUnit.Gui.Presenters
 
         public static int CalcImageIndex(ResultState outcome)
         {
+            if (outcome == null)
+            {
+                return TestTreeView.InitIndex;
+            }
             switch (outcome.Status)
             {
                 case TestStatus.Inconclusive:
@@ -202,11 +277,10 @@ namespace NUnit.Gui.Presenters
         {
             TestNode testNode = treeNode.Tag as TestNode;
 
-            if (testNode != null)
+            if (testNode != null && testNode.CanRun())
             {
                 ResultNode resultNode = GetResultForTest(testNode);
-                if (resultNode != null)
-                    treeNode.ImageIndex = treeNode.SelectedImageIndex = CalcImageIndex(resultNode.Outcome);
+                treeNode.ImageIndex = treeNode.SelectedImageIndex = CalcImageIndex(resultNode?.Outcome);
             }
 
             foreach (TreeNode childNode in treeNode.Nodes)
@@ -246,6 +320,45 @@ namespace NUnit.Gui.Presenters
         public ResultNode GetResultForTest(TestNode testNode)
         {
             return _model.GetResultForTest(testNode);
+        }
+
+        public virtual IList<TreeNode> GetFailedNodes()
+        {
+            var checkedNodes = new List<TreeNode>();
+            var treeView = _view.Tree?.Control;
+            if (treeView != null)
+            {
+                foreach (TreeNode node in treeView.Nodes)
+                    CollectCheckedNodes(checkedNodes, node);
+            }
+
+            return checkedNodes;
+        }
+
+        public void ToggleNodeCheck(TreeNode treeNode, bool checkedValue, bool recursive = true)
+        {
+            TestNode testNode = treeNode.Tag as TestNode;
+
+            if (testNode != null && testNode.CanRun())
+            {
+                treeNode.Checked = checkedValue;
+                if (recursive)
+                {
+                    foreach (TreeNode child in treeNode.Nodes)
+                    {
+                        ToggleNodeCheck(child, checkedValue, recursive);
+                    }
+                }
+            }
+        }
+
+        private void CollectCheckedNodes(List<TreeNode> checkedNodes, TreeNode node)
+        {
+            if (node.ImageIndex == TestTreeView.FailureIndex && (node.Tag as TestNode)?.Type == TestNode.TestCase)
+                checkedNodes.Add(node);
+            else
+                foreach (TreeNode child in node.Nodes)
+                    CollectCheckedNodes(checkedNodes, child);
         }
 
         #endregion

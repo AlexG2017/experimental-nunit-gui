@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Xml;
 
@@ -41,7 +42,7 @@ namespace NUnit
         public static XmlNode CreateTopLevelElement(string name)
         {
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml( "<" + name + "/>" );
+            doc.LoadXml("<" + name + "/>");
             return doc.FirstChild;
         }
 

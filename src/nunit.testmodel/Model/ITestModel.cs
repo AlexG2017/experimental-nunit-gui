@@ -111,6 +111,8 @@ namespace NUnit.Gui.Model
         // Reload current TestPackage
         void ReloadTests();
 
+        void ClearTestResults();
+
         // Run all the tests
         void RunAllTests();
 

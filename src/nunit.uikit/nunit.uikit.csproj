@@ -54,6 +54,7 @@
     <Compile Include="Elements\CheckedMenuGroup.cs" />
     <Compile Include="Elements\ContextMenuElement.cs" />
     <Compile Include="Elements\IContextMenuElement.cs" />
+    <Compile Include="Elements\IListElement.cs" />
     <Compile Include="Elements\ISelection.cs" />
     <Compile Include="Elements\ICommand.cs" />
     <Compile Include="Elements\IPopup.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Elements\IToolStripElement.cs" />
     <Compile Include="Elements\IControlElement.cs" />
     <Compile Include="Elements\IViewElement.cs" />
+    <Compile Include="Elements\ListElement.cs" />
     <Compile Include="Elements\MenuElement.cs" />
     <Compile Include="Elements\SplitButtonElement.cs" />
     <Compile Include="Elements\ToolStripElement.cs" />
@@ -79,6 +81,12 @@
     <EmbeddedResource Include="Controls\TipWindow.resx">
       <DependentUpon>TipWindow.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\nunit.testmodel\nunit.testmodel.csproj">
+      <Project>{E978A8D7-E4A4-4DE9-94DF-D82BD764936B}</Project>
+      <Name>nunit.testmodel</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

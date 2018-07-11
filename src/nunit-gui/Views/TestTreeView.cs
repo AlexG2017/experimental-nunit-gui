@@ -23,6 +23,7 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
+using Nunit.Gui.Model;
 using NUnit.UiKit.Elements;
 
 namespace NUnit.Gui.Views
@@ -60,9 +61,12 @@ namespace NUnit.Gui.Views
                 "testGrouping", 
                 byAssemblyMenuItem, byFixtureMenuItem, byCategoryMenuItem, byOutcomeMenuItem, byDurationMenuItem);
 
-            RunContextCommand = new MenuElement(this.runMenuItem);
-            RunCheckedCommand = new MenuElement(this.runCheckedMenuItem);
+            RunContextCommand = new MenuElement(runMenuItem);
+            RunCheckedCommand = new MenuElement(runCheckedMenuItem);
             ShowCheckBoxesCommand = new MenuElement(showCheckboxesMenuItem);
+            CheckAllTestsCommand = new MenuElement(checkAllMenuItem);
+            UncheckAllTestsCommand = new MenuElement(uncheckAllMenuItem);
+            CheckFailedTestsCommand = new MenuElement(checkFailedMenuItem);
             ExpandAllCommand = new MenuElement(expandAllMenuItem);
             CollapseAllCommand = new MenuElement(collapseAllMenuItem);
             CollapseToFixturesCommand = new MenuElement(collapseToFixturesMenuItem);
@@ -81,6 +85,9 @@ namespace NUnit.Gui.Views
         public ICommand RunContextCommand { get; private set; }
         public ICommand RunCheckedCommand { get; private set; }
         public IChecked ShowCheckBoxesCommand { get; private set; }
+        public ICommand CheckAllTestsCommand { get; private set; }
+        public ICommand UncheckAllTestsCommand { get; private set; }
+        public ICommand CheckFailedTestsCommand { get; private set; }
         public ICommand ExpandAllCommand { get; private set; }
         public ICommand CollapseAllCommand { get; private set; }
         public ICommand CollapseToFixturesCommand { get; private set; }
@@ -91,11 +98,16 @@ namespace NUnit.Gui.Views
 
         public ITreeViewElement Tree { get; private set; }
 
-        #endregion
+	    public ICategoryView Category
+		{
+		    get { return categoriesView; }
+	    }
 
-        #region Public Methods
+		#endregion
 
-        public void ExpandAll()
+		#region Public Methods
+
+		public void ExpandAll()
         {
             Tree.ExpandAll();
         }

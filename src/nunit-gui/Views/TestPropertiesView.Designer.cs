@@ -52,14 +52,16 @@
             this.testCountLabel = new System.Windows.Forms.Label();
             this.runState = new System.Windows.Forms.Label();
             this.resultPanel = new System.Windows.Forms.Panel();
-            this.output = new NUnit.UiKit.Controls.ExpandingLabel();
+            this.output = new System.Windows.Forms.TextBox();
             this.outputLabel = new System.Windows.Forms.Label();
-            this.assertions = new NUnit.UiKit.Controls.ExpandingLabel();
+            this.assertions = new System.Windows.Forms.TextBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.testPanel = new System.Windows.Forms.Panel();
             this.fullName = new NUnit.UiKit.Controls.ExpandingLabel();
             this.description = new NUnit.UiKit.Controls.ExpandingLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.resultPanel.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.testPanel.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -175,7 +177,7 @@
             // 
             // outcomeLabel
             // 
-            this.outcomeLabel.Location = new System.Drawing.Point(3, 4);
+            this.outcomeLabel.Location = new System.Drawing.Point(3, 0);
             this.outcomeLabel.Name = "outcomeLabel";
             this.outcomeLabel.Size = new System.Drawing.Size(53, 13);
             this.outcomeLabel.TabIndex = 18;
@@ -183,15 +185,16 @@
             // 
             // outcome
             // 
+            this.tableLayoutPanel1.SetColumnSpan(this.outcome, 3);
             this.outcome.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.outcome.Location = new System.Drawing.Point(84, 4);
+            this.outcome.Location = new System.Drawing.Point(91, 0);
             this.outcome.Name = "outcome";
             this.outcome.Size = new System.Drawing.Size(144, 13);
             this.outcome.TabIndex = 19;
             // 
             // elapsedTimeLabel
             // 
-            this.elapsedTimeLabel.Location = new System.Drawing.Point(3, 21);
+            this.elapsedTimeLabel.Location = new System.Drawing.Point(3, 20);
             this.elapsedTimeLabel.Name = "elapsedTimeLabel";
             this.elapsedTimeLabel.Size = new System.Drawing.Size(74, 13);
             this.elapsedTimeLabel.TabIndex = 21;
@@ -199,14 +202,14 @@
             // 
             // elapsedTime
             // 
-            this.elapsedTime.Location = new System.Drawing.Point(81, 22);
+            this.elapsedTime.Location = new System.Drawing.Point(91, 20);
             this.elapsedTime.Name = "elapsedTime";
             this.elapsedTime.Size = new System.Drawing.Size(67, 13);
             this.elapsedTime.TabIndex = 22;
             // 
             // assertCountLabel
             // 
-            this.assertCountLabel.Location = new System.Drawing.Point(167, 21);
+            this.assertCountLabel.Location = new System.Drawing.Point(164, 20);
             this.assertCountLabel.Name = "assertCountLabel";
             this.assertCountLabel.Size = new System.Drawing.Size(44, 13);
             this.assertCountLabel.TabIndex = 23;
@@ -214,7 +217,7 @@
             // 
             // assertCount
             // 
-            this.assertCount.Location = new System.Drawing.Point(231, 21);
+            this.assertCount.Location = new System.Drawing.Point(270, 172);
             this.assertCount.Name = "assertCount";
             this.assertCount.Size = new System.Drawing.Size(49, 13);
             this.assertCount.TabIndex = 24;
@@ -222,7 +225,7 @@
             // messageLabel
             // 
             this.messageLabel.AutoSize = true;
-            this.messageLabel.Location = new System.Drawing.Point(3, 39);
+            this.messageLabel.Location = new System.Drawing.Point(3, 40);
             this.messageLabel.Name = "messageLabel";
             this.messageLabel.Size = new System.Drawing.Size(82, 13);
             this.messageLabel.TabIndex = 25;
@@ -265,54 +268,81 @@
             // 
             this.resultPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.resultPanel.Controls.Add(this.output);
-            this.resultPanel.Controls.Add(this.elapsedTime);
             this.resultPanel.Controls.Add(this.outputLabel);
-            this.resultPanel.Controls.Add(this.outcomeLabel);
-            this.resultPanel.Controls.Add(this.outcome);
-            this.resultPanel.Controls.Add(this.elapsedTimeLabel);
-            this.resultPanel.Controls.Add(this.assertCountLabel);
-            this.resultPanel.Controls.Add(this.assertCount);
-            this.resultPanel.Controls.Add(this.messageLabel);
             this.resultPanel.Controls.Add(this.assertions);
+            this.resultPanel.Controls.Add(this.tableLayoutPanel1);
+            this.resultPanel.Controls.Add(this.assertCount);
             this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.resultPanel.Location = new System.Drawing.Point(0, 0);
             this.resultPanel.Name = "resultPanel";
+            this.resultPanel.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
             this.resultPanel.Size = new System.Drawing.Size(539, 405);
             this.resultPanel.TabIndex = 29;
             // 
             // output
             // 
-            this.output.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.output.BackColor = System.Drawing.Color.LightYellow;
-            this.output.Expansion = NUnit.UiKit.Controls.TipWindow.ExpansionStyle.Both;
-            this.output.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.output.Location = new System.Drawing.Point(5, 203);
+            this.output.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.output.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.output.Font = new System.Drawing.Font("Lucida Console", 8.25F);
+            this.output.Location = new System.Drawing.Point(3, 192);
+            this.output.MaxLength = 0;
+            this.output.Multiline = true;
             this.output.Name = "output";
-            this.output.Size = new System.Drawing.Size(527, 187);
-            this.output.TabIndex = 29;
+            this.output.ReadOnly = true;
+            this.output.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.output.Size = new System.Drawing.Size(531, 211);
+            this.output.TabIndex = 33;
             // 
             // outputLabel
             // 
             this.outputLabel.AutoSize = true;
-            this.outputLabel.Location = new System.Drawing.Point(2, 180);
+            this.outputLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.outputLabel.Location = new System.Drawing.Point(3, 169);
             this.outputLabel.Name = "outputLabel";
-            this.outputLabel.Size = new System.Drawing.Size(42, 13);
-            this.outputLabel.TabIndex = 0;
+            this.outputLabel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 5);
+            this.outputLabel.Size = new System.Drawing.Size(42, 23);
+            this.outputLabel.TabIndex = 32;
             this.outputLabel.Text = "Output:";
             // 
             // assertions
             // 
-            this.assertions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.assertions.BackColor = System.Drawing.Color.LightYellow;
-            this.assertions.Expansion = NUnit.UiKit.Controls.TipWindow.ExpansionStyle.Both;
-            this.assertions.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.assertions.Location = new System.Drawing.Point(3, 57);
+            this.assertions.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.assertions.Dock = System.Windows.Forms.DockStyle.Top;
+            this.assertions.Font = new System.Drawing.Font("Lucida Console", 8.25F);
+            this.assertions.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.assertions.Location = new System.Drawing.Point(3, 54);
+            this.assertions.MaxLength = 2147483647;
+            this.assertions.Multiline = true;
             this.assertions.Name = "assertions";
-            this.assertions.Size = new System.Drawing.Size(527, 114);
-            this.assertions.TabIndex = 26;
+            this.assertions.ReadOnly = true;
+            this.assertions.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.assertions.Size = new System.Drawing.Size(531, 115);
+            this.assertions.TabIndex = 31;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.outcome, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.elapsedTime, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.assertCountLabel, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.messageLabel, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.elapsedTimeLabel, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.outcomeLabel, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(531, 54);
+            this.tableLayoutPanel1.TabIndex = 30;
             // 
             // testPanel
             // 
@@ -392,6 +422,8 @@
             this.Size = new System.Drawing.Size(539, 665);
             this.resultPanel.ResumeLayout(false);
             this.resultPanel.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.testPanel.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -423,15 +455,16 @@
         private System.Windows.Forms.Label assertCountLabel;
         private System.Windows.Forms.Label assertCount;
         private System.Windows.Forms.Label messageLabel;
-        private NUnit.UiKit.Controls.ExpandingLabel assertions;
         private System.Windows.Forms.Label testCount;
         private System.Windows.Forms.Label runStateLabel;
         private System.Windows.Forms.Label testCountLabel;
         private System.Windows.Forms.Label runState;
         private System.Windows.Forms.Panel resultPanel;
         private System.Windows.Forms.Panel testPanel;
-        private UiKit.Controls.ExpandingLabel output;
-        private System.Windows.Forms.Label outputLabel;
         private System.Windows.Forms.SplitContainer splitContainer1;
-    }
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+		private System.Windows.Forms.TextBox output;
+		private System.Windows.Forms.Label outputLabel;
+		private System.Windows.Forms.TextBox assertions;
+	}
 }

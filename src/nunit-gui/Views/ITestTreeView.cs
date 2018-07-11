@@ -41,6 +41,9 @@ namespace NUnit.Gui.Views
         ICommand RunContextCommand { get; }
         ICommand RunCheckedCommand { get; }
         IChecked ShowCheckBoxesCommand { get; }
+        ICommand CheckAllTestsCommand { get; }
+        ICommand UncheckAllTestsCommand { get; }
+        ICommand CheckFailedTestsCommand { get; }
         ICommand ExpandAllCommand { get; }
         ICommand CollapseAllCommand { get; }
         ICommand CollapseToFixturesCommand { get; }
@@ -49,5 +52,7 @@ namespace NUnit.Gui.Views
         void CollapseAll();
 
         ITreeViewElement Tree { get; }
+
+        ICategoryView Category { get; }
     }
 }

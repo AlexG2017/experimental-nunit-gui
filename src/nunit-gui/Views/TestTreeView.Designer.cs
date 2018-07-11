@@ -58,8 +58,18 @@
             this.byCategoryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.byOutcomeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.byDurationMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabTests = new System.Windows.Forms.TabPage();
+            this.tabCategories = new System.Windows.Forms.TabPage();
+            this.categoriesView = new NUnit.Gui.Views.CategoryView();
+            this.checkAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uncheckAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkFailedMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testTreeContextMenu.SuspendLayout();
             this.toolStrip.SuspendLayout();
+            this.tabControl.SuspendLayout();
+            this.tabTests.SuspendLayout();
+            this.tabCategories.SuspendLayout();
             this.SuspendLayout();
             // 
             // treeView
@@ -69,10 +79,10 @@
             this.treeView.HideSelection = false;
             this.treeView.ImageIndex = 0;
             this.treeView.ImageList = this.treeImages;
-            this.treeView.Location = new System.Drawing.Point(0, 25);
+            this.treeView.Location = new System.Drawing.Point(3, 3);
             this.treeView.Name = "treeView";
             this.treeView.SelectedImageIndex = 0;
-            this.treeView.Size = new System.Drawing.Size(150, 125);
+            this.treeView.Size = new System.Drawing.Size(117, 111);
             this.treeView.TabIndex = 1;
             // 
             // testTreeContextMenu
@@ -82,12 +92,15 @@
             this.runCheckedMenuItem,
             this.toolStripMenuItem13,
             this.showCheckboxesMenuItem,
+            this.checkAllMenuItem,
+            this.uncheckAllMenuItem,
+            this.checkFailedMenuItem,
             this.toolStripSeparator1,
             this.expandAllMenuItem,
             this.collapseAllMenuItem,
             this.collapseToFixturesMenuItem});
             this.testTreeContextMenu.Name = "testTreeContextMenu";
-            this.testTreeContextMenu.Size = new System.Drawing.Size(177, 148);
+            this.testTreeContextMenu.Size = new System.Drawing.Size(177, 236);
             // 
             // runMenuItem
             // 
@@ -288,16 +301,80 @@
             this.byDurationMenuItem.Tag = "DURATION";
             this.byDurationMenuItem.Text = "By Duration";
             // 
+            // tabControl
+            // 
+            this.tabControl.Alignment = System.Windows.Forms.TabAlignment.Left;
+            this.tabControl.Controls.Add(this.tabTests);
+            this.tabControl.Controls.Add(this.tabCategories);
+            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl.Location = new System.Drawing.Point(0, 25);
+            this.tabControl.Multiline = true;
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(150, 125);
+            this.tabControl.TabIndex = 2;
+            // 
+            // tabTests
+            // 
+            this.tabTests.Controls.Add(this.treeView);
+            this.tabTests.Location = new System.Drawing.Point(23, 4);
+            this.tabTests.Name = "tabTests";
+            this.tabTests.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTests.Size = new System.Drawing.Size(123, 117);
+            this.tabTests.TabIndex = 0;
+            this.tabTests.Text = "Tests";
+            this.tabTests.UseVisualStyleBackColor = true;
+            // 
+            // tabCategories
+            // 
+            this.tabCategories.Controls.Add(this.categoriesView);
+            this.tabCategories.Location = new System.Drawing.Point(23, 4);
+            this.tabCategories.Name = "tabCategories";
+            this.tabCategories.Padding = new System.Windows.Forms.Padding(3);
+            this.tabCategories.Size = new System.Drawing.Size(123, 117);
+            this.tabCategories.TabIndex = 1;
+            this.tabCategories.Text = "Categories";
+            this.tabCategories.UseVisualStyleBackColor = true;
+            // 
+            // categoriesView
+            // 
+            this.categoriesView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.categoriesView.Location = new System.Drawing.Point(3, 3);
+            this.categoriesView.Name = "categoriesView";
+            this.categoriesView.Size = new System.Drawing.Size(117, 111);
+            this.categoriesView.TabIndex = 0;
+            // 
+            // checkAllMenuItem
+            // 
+            this.checkAllMenuItem.Name = "checkAllMenuItem";
+            this.checkAllMenuItem.Size = new System.Drawing.Size(176, 22);
+            this.checkAllMenuItem.Text = "Check All";
+            // 
+            // uncheckAllMenuItem
+            // 
+            this.uncheckAllMenuItem.Name = "uncheckAllMenuItem";
+            this.uncheckAllMenuItem.Size = new System.Drawing.Size(176, 22);
+            this.uncheckAllMenuItem.Text = "Uncheck All";
+            // 
+            // checkFailedMenuItem
+            // 
+            this.checkFailedMenuItem.Name = "checkFailedMenuItem";
+            this.checkFailedMenuItem.Size = new System.Drawing.Size(176, 22);
+            this.checkFailedMenuItem.Text = "Check Failed";
+            // 
             // TestTreeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.treeView);
+            this.Controls.Add(this.tabControl);
             this.Controls.Add(this.toolStrip);
             this.Name = "TestTreeView";
             this.testTreeContextMenu.ResumeLayout(false);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
+            this.tabControl.ResumeLayout(false);
+            this.tabTests.ResumeLayout(false);
+            this.tabCategories.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -333,5 +410,12 @@
         private System.Windows.Forms.ToolStripMenuItem showCheckboxesMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem runCheckedMenuItem;
+		private System.Windows.Forms.TabControl tabControl;
+		private System.Windows.Forms.TabPage tabTests;
+		private System.Windows.Forms.TabPage tabCategories;
+		private CategoryView categoriesView;
+        private System.Windows.Forms.ToolStripMenuItem checkAllMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem uncheckAllMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem checkFailedMenuItem;
     }
 }

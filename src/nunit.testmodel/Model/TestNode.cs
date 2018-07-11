@@ -49,6 +49,11 @@ namespace NUnit.Gui.Model
     /// </summary>
     public class TestNode : ITestItem
     {
+        private static readonly char[] Splitters = new char[] { ',' };
+
+        public const string TestCase = "TestCase";
+        public const string TestFixture = "TestFixture";
+
         #region Constructors
 
         public TestNode(XmlNode xmlNode)
@@ -58,9 +63,10 @@ namespace NUnit.Gui.Model
             Id = Xml.GetAttribute("id");
             Name = Xml.GetAttribute("name");
             FullName = Xml.GetAttribute("fullname");
-            Type = IsSuite ? GetAttribute("type") : "TestCase";
+            Type = IsSuite ? GetAttribute("type") : TestCase;
             TestCount = IsSuite ? GetAttribute("testcasecount", 0) : 1;
             RunState = GetRunState();
+            Categories = GetCategories();
         }
 
         public TestNode(string xmlText) : this(XmlHelper.CreateXmlNode(xmlText)) { }
@@ -73,10 +79,11 @@ namespace NUnit.Gui.Model
         public bool IsSuite { get; }
         public string Id { get; }
         public string Name { get; }
-        public string FullName  { get; }
+        public string FullName { get; }
         public string Type { get; }
         public int TestCount { get; }
-        public RunState RunState { get; }
+        public RunState RunState { get; private set; }
+        public string[] Categories { get; }
 
         private List<TestNode> _children;
         public IList<TestNode> Children
@@ -99,9 +106,16 @@ namespace NUnit.Gui.Model
 
         #region Public Methods
 
+        public bool CanRun()
+        {
+            return RunState != RunState.Ignored && RunState != RunState.Skipped;
+        }
+
         public TestFilter GetTestFilter()
         {
-            return new TestFilter(string.Format("<filter><id>{0}</id></filter>", this.Id));
+            return !CanRun()
+                ? new TestFilter("<filter><id>-1</id></filter>")
+                : new TestFilter(string.Format("<filter><id>{0}</id></filter>", this.Id));
         }
 
         public string GetAttribute(string name)
@@ -184,6 +198,16 @@ namespace NUnit.Gui.Model
                     Accumulate(selection, child, predicate);
         }
 
+        public void SetRunState(RunState state)
+        {
+            RunState = state;
+        }
+
+        public void ResetRunState()
+        {
+            RunState = GetRunState();
+        }
+
         #endregion
 
         #region Helper Methods
@@ -214,6 +238,16 @@ namespace NUnit.Gui.Model
                 default:
                     return RunState.Unknown;
             }
+        }
+
+        private string[] GetCategories()
+        {
+            string categories = GetPropertyList("Category");
+            if (!string.IsNullOrEmpty(categories))
+            {
+                return categories.Split(Splitters, StringSplitOptions.RemoveEmptyEntries);
+            }
+            return new string[0];
         }
 
         #endregion

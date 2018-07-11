@@ -42,15 +42,25 @@ namespace NUnit.Gui.Model
     public class TestNodeEventArgs : TestEventArgs
     {
         public TestNodeEventArgs(TestAction action, TestNode test)
+            : this(action, test, new string[0])
+        {
+        }
+
+        public TestNodeEventArgs(TestAction action, TestNode test, string[] categories)
             : base(action)
         {
             if (test == null)
                 throw new ArgumentNullException("test");
+            if (categories == null)
+                throw new ArgumentNullException("categories");
 
             Test = test;
+            Categories = categories;
         }
 
         public TestNode Test { get; private set; }
+
+        public string[] Categories { get; private set; }
     }
 
     public class RunStartingEventArgs : TestEventArgs

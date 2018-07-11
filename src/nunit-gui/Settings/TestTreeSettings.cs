@@ -21,6 +21,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ***********************************************************************
 
+using System.Drawing;
+
 namespace NUnit.Gui.Settings
 {
     using Engine;
@@ -67,6 +69,13 @@ namespace NUnit.Gui.Settings
             set { SaveSetting(saveVisualStateKey, value); }
         }
 
+        private const string showCheckboxesKey = "ShowCheckboxes";
+        public bool ShowCheckboxes
+        {
+            get { return GetSetting(showCheckboxesKey, true); }
+            set { SaveSetting(showCheckboxesKey, value); }
+        }
+
         //private const string alternateImageSetKey = "AlternateImageSet";
         //public string AlternateImageSet
         //{
@@ -96,6 +105,25 @@ namespace NUnit.Gui.Settings
         {
             get { return GetSetting(groupByKey, "OUTCOME"); }
             set { SaveSetting(groupByKey, value); }
+        }
+    }
+
+    public class TestCategorySettings : SettingsGroup
+    {
+        public TestCategorySettings(ISettings settings) : base(settings, "Gui.TestTree.Category") { }
+
+        private static readonly string CategoriesKey = "Categories";
+        private static readonly string ExcludeKey = "Exclude";
+        public string[] Categories
+        {
+            get { return GetSetting(CategoriesKey, string.Empty).Split(','); }
+            set { SaveSetting(CategoriesKey, string.Join(",", value)); }
+        }
+
+        public bool Exclude
+        {
+            get { return GetSetting(ExcludeKey, false); }
+            set { SaveSetting(ExcludeKey, value); }
         }
     }
 }

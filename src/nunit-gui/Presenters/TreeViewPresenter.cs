@@ -22,9 +22,11 @@
 // ***********************************************************************
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
+using Nunit.Gui;
 
 namespace NUnit.Gui.Presenters
 {
@@ -53,7 +55,9 @@ namespace NUnit.Gui.Presenters
             _view = treeView;
             _model = model;
 
-            Settings = new Settings.TestTreeSettings(_model.GetService<ISettings>());
+            var settingsService = _model.GetService<ISettings>();
+            Settings = new Settings.TestTreeSettings(settingsService);
+            SelectedCategorySettings = new Settings.TestCategorySettings(settingsService);
 
             InitializeRunCommands();
             WireUpEvents();
@@ -70,12 +74,15 @@ namespace NUnit.Gui.Presenters
             {
                 _strategy.OnTestLoaded(ea.Test);
                 InitializeRunCommands();
+                InitializeCategories(ea.Categories);
+                _view.ShowCheckBoxesCommand.Checked = Settings.ShowCheckboxes;
             };
 
             _model.TestReloaded += (ea) =>
             {
                 _strategy.OnTestLoaded(ea.Test);
                 InitializeRunCommands();
+                ApplyCategoryFilter(_view.Category.SelectedCategories.Items, _view.Category.ExcludeCommand.Checked);
             };
 
             _model.TestUnloaded += (ea) =>
@@ -91,71 +98,164 @@ namespace NUnit.Gui.Presenters
             _model.SuiteFinished += (ea) => _strategy.OnTestFinished(ea.Result);
 
             // View actions - Initial Load
-            _view.Load += (s, e) =>
-            {
-                SetDefaultDisplayStrategy();
-            };
+            _view.Load += (s, e) => SetDefaultDisplayStrategy();
 
             // View context commands
-            _view.Tree.ContextMenu.Popup += () =>
-                _view.RunCheckedCommand.Visible = _view.Tree.CheckBoxes && _view.Tree.CheckedNodes.Count > 0;
+            _view.Tree.ContextMenu.Popup += () => _view.RunCheckedCommand.Visible = _view.Tree.CheckBoxes && _view.Tree.CheckedNodes.Count > 0;
             _view.CollapseAllCommand.Execute += () => _view.CollapseAll();
             _view.ExpandAllCommand.Execute += () => _view.ExpandAll();
             _view.CollapseToFixturesCommand.Execute += () => _strategy.CollapseToFixtures();
-            _view.ShowCheckBoxesCommand.CheckedChanged += () => _view.Tree.CheckBoxes = _view.ShowCheckBoxesCommand.Checked;;
-            _view.RunContextCommand.Execute += () =>
+            _view.ShowCheckBoxesCommand.CheckedChanged += () =>
             {
-                if (_selectedTestItem != null)
-                    _model.RunTests(_selectedTestItem);
+                _view.RunSelectedCommand.Enabled = false;
+                _view.Tree.CheckBoxes =
+                    _view.CheckAllTestsCommand.Visible =
+                        _view.UncheckAllTestsCommand.Visible =
+                            _view.CheckFailedTestsCommand.Visible =
+                                Settings.ShowCheckboxes = _view.ShowCheckBoxesCommand.Checked;
             };
+            _view.CheckAllTestsCommand.Execute += () =>
+            {
+                var treeView = _view.Tree?.Control;
+                if (treeView != null)
+                {
+                    ToggleNodeCheck(treeView.Nodes, true, true);
+                }
+            };
+            _view.UncheckAllTestsCommand.Execute += () =>
+            {
+                var treeView = _view.Tree?.Control;
+                if (treeView != null)
+                {
+                    ToggleNodeCheck(treeView.Nodes, false, true);
+                }
+            };
+            _view.CheckFailedTestsCommand.Execute += () =>
+            {
+                var treeView = _view.Tree?.Control;
+                if (treeView != null)
+                {
+                    ToggleNodeCheck(_strategy.GetFailedNodes(), true, true);
+                }
+            };
+            _view.RunContextCommand.Execute += () => _model.RunTests(_selectedTestItem);
             _view.RunCheckedCommand.Execute += RunCheckedTests;
 
             // Node selected in tree
             _view.Tree.SelectedNodeChanged += (tn) =>
             {
                 _selectedTestItem = tn.Tag as ITestItem;
+                _view.RunContextCommand.Enabled = (_selectedTestItem as TestNode)?.CanRun() ?? true;
                 _model.NotifySelectedItemChanged(_selectedTestItem);
             };
 
             // Run button and dropdowns
-            _view.RunButton.Execute += () =>
-            {
-                // Necessary test because we don't disable the button click
-                if (_model.HasTests && !_model.IsTestRunning)
-                    _model.RunAllTests();
-            };
+            _view.RunButton.Execute += () => _model.RunAllTests();
             _view.RunAllCommand.Execute += () => _model.RunAllTests();
             _view.RunSelectedCommand.Execute += () => _model.RunTests(_selectedTestItem);
-            _view.RunFailedCommand.Execute += () => _model.RunAllTests(); // NYI
+            _view.RunFailedCommand.Execute += () => RunFailedTest();
             _view.StopRunCommand.Execute += () => _model.CancelTestRun();
 
             // Change of display format
             _view.DisplayFormat.SelectionChanged += () =>
             {
                 SetDisplayStrategy(_view.DisplayFormat.SelectedItem);
-
                 _strategy.Reload();
+                ApplyCategoryFilter(_view.Category.SelectedCategories.Items, _view.Category.ExcludeCommand.Checked);
             };
+
+            _view.Category.SelectedCategories.ItemsChanged += (sender, ae) => ApplyCategoryFilter(ae.Value, _view.Category.ExcludeCommand.Checked);
+            _view.Category.ExcludeCommand.CheckedChanged += () => ApplyCategoryFilter(_view.Category.SelectedCategories.Items, _view.Category.ExcludeCommand.Checked);
+        }
+
+        private void InitializeCategories(string[] categories)
+        {
+            _view.Category.AvailableCategories.Clear();
+            _view.Category.AvailableCategories.AddRange(categories);
+
+            var excludeSelectedCategories = SelectedCategorySettings.Exclude;
+            if (SelectedCategorySettings.Categories?.Length > 0)
+            {
+                var selectedCategories = ArrayExtensions.Intersect(
+                    SelectedCategorySettings.Categories,
+                    _view.Category.AvailableCategories.Items);
+                _view.Category.SelectedCategories.Clear();
+                _view.Category.SelectedCategories.AddRange(selectedCategories);
+                if (selectedCategories.Length > 0)
+                {
+                    _view.Category.AvailableCategories.Clear();
+                    _view.Category.AvailableCategories.AddRange(ArrayExtensions.Except(categories, selectedCategories));
+                }
+            }
+            _view.Category.ExcludeCommand.Checked = excludeSelectedCategories;
+        }
+
+        private void ApplyCategoryFilter(string[] categories, bool excludeCommand)
+        {
+            SelectedCategorySettings.Categories = categories;
+            SelectedCategorySettings.Exclude = excludeCommand;
+
+            _strategy.Filter(x =>
+            {
+                TestNode node = x as TestNode;
+                return node == null
+                       || categories.Length == 0
+                       || ArrayExtensions.IsIntersect(categories, node.Categories) != excludeCommand;
+            }, excludeCommand);
         }
 
         private void RunCheckedTests()
         {
-            var tests = new TestGroup("RunTests");
+            RunTestGroup(_view.Tree.CheckedNodes);
+        }
 
-            foreach (var treeNode in _view.Tree.CheckedNodes)
+        private void RunFailedTest()
+        {
+            RunTestGroup(_strategy.GetFailedNodes());
+        }
+
+        private void RunTestGroup(IList<TreeNode> nodes)
+        {
+            var tests = new TestGroup("RunTests");
+            foreach (TreeNode treeNode in nodes)
             {
-                var testNode = treeNode.Tag as TestNode;
-                if (testNode != null)
-                    tests.Add(testNode);
-                else
-                {
-                    var group = treeNode.Tag as TestGroup;
-                    if (group != null)
-                        tests.AddRange(group);
-                }
+                CollectTestGroup(tests, treeNode);
             }
 
             _model.RunTests(tests);
+        }
+
+        private void ToggleNodeCheck(IEnumerable nodes, bool checkedValue, bool recursive = true)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                _strategy.ToggleNodeCheck(node, checkedValue, recursive);
+            }
+        }
+
+        private void CollectTestGroup(TestGroup tests, TreeNode node)
+        {
+            var testNode = node.Tag as TestNode;
+            if (testNode != null && testNode.CanRun())
+            {
+                if (testNode.Type == TestNode.TestCase)
+                {
+                    tests.Add(testNode);
+                }
+                else
+                {
+                    foreach (TreeNode treeNode in node.Nodes)
+                    {
+                        CollectTestGroup(tests, treeNode);
+                    }
+                }
+            }
+            else
+            {
+                var group = node.Tag as TestGroup;
+                if (group != null)
+                    tests.AddRange(group);
+            }
         }
 
         private void InitializeRunCommands()
@@ -165,10 +265,23 @@ namespace NUnit.Gui.Presenters
 
             // TODO: Figure out how to disable the button click but not the dropdown.
             //_view.RunButton.Enabled = canRun;
-            _view.RunAllCommand.Enabled = canRun;
-            _view.RunSelectedCommand.Enabled = canRun;
-            _view.RunFailedCommand.Enabled = canRun;
+            _view.RunAllCommand.Enabled =
+                _view.RunSelectedCommand.Enabled =
+                    _view.RunContextCommand.Enabled =
+                        _view.RunCheckedCommand.Enabled =
+                            _view.RunFailedCommand.Enabled = canRun;
             _view.StopRunCommand.Enabled = isRunning;
+
+            if (isRunning)
+            {
+                ClearTestsResult();
+            }
+        }
+
+        private void ClearTestsResult()
+        {
+            _model?.ClearTestResults();
+            _strategy?.ClearTestResults();
         }
 
         private void SetDefaultDisplayStrategy()
@@ -203,6 +316,7 @@ namespace NUnit.Gui.Presenters
         }
 
         private Settings.TestTreeSettings Settings { get; }
+        private Settings.TestCategorySettings SelectedCategorySettings { get; }
 
         #endregion
     }

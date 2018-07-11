@@ -23,16 +23,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
+using Nunit.Gui;
 using NUnit.Engine;
 
 namespace NUnit.Gui.Model
 {
     public class TestModel : ITestModel, ITestEventListener
     {
-        private ITestEngine _testEngine;
+        private readonly ITestEngine _testEngine;
         private TestPackage _package;
-        private IDictionary<string, ResultNode> _resultIndex = new Dictionary<string, ResultNode>();
+        private readonly IDictionary<string, ResultNode> _resultIndex = new Dictionary<string, ResultNode>();
 
         #region Constructor
 
@@ -40,7 +42,7 @@ namespace NUnit.Gui.Model
         {
             _testEngine = testEngine;
             Options = options;
-            RecentFiles = testEngine.Services.GetService<IRecentFiles>();
+            RecentFiles = GetService<IRecentFiles>();
         }
 
         #endregion
@@ -80,14 +82,23 @@ namespace NUnit.Gui.Model
 
         public ITestRunner Runner { get; private set; }
 
-        public bool IsPackageLoaded { get { return _package != null; } }
+        public bool IsPackageLoaded
+        {
+            get { return _package != null; }
+        }
 
         public TestNode Tests { get; private set; }
-        public bool HasTests { get { return Tests != null; } }
+
+        public bool HasTests
+        {
+            get { return Tests != null; }
+        }
+
+        public string[] Categories { get; private set; }
 
         public bool IsTestRunning
         {
-            get { return Runner != null && Runner.IsTestRunning;  }
+            get { return Runner != null && Runner.IsTestRunning; }
         }
 
         public bool HasResults
@@ -98,6 +109,7 @@ namespace NUnit.Gui.Model
         private IList<string> _files;
 
         private List<IRuntimeFramework> _runtimes;
+
         public IList<IRuntimeFramework> AvailableRuntimes
         {
             get
@@ -227,10 +239,11 @@ namespace NUnit.Gui.Model
             Runner = _testEngine.GetRunner(_package);
 
             Tests = new TestNode(Runner.Explore(TestFilter.Empty));
+            Categories = CategoryExplorer.Expolre(Tests);
 
             _resultIndex.Clear();
 
-            TestLoaded?.Invoke(new TestNodeEventArgs(TestAction.TestLoaded, Tests));
+            TestLoaded?.Invoke(new TestNodeEventArgs(TestAction.TestLoaded, Tests, Categories));
 
             foreach (var subPackage in _package.SubPackages)
                 RecentFiles.SetMostRecent(subPackage.FullName);
@@ -258,13 +271,19 @@ namespace NUnit.Gui.Model
             Runner = _testEngine.GetRunner(_package);
 
             Tests = new TestNode(Runner.Explore(TestFilter.Empty));
+            Categories = CategoryExplorer.Expolre(Tests);
 
             _resultIndex.Clear();
 
-            TestReloaded?.Invoke(new TestNodeEventArgs(TestAction.TestReloaded, Tests));
+            TestReloaded?.Invoke(new TestNodeEventArgs(TestAction.TestReloaded, Tests, Categories));
         }
 
-#region Helper Methods
+        public void ClearTestResults()
+        {
+            _resultIndex.Clear();
+        }
+
+        #region Helper Methods
 
         // Public for testing only
         public TestPackage MakeTestPackage(IList<string> testFiles)
@@ -278,7 +297,7 @@ namespace NUnit.Gui.Model
                 package.AddSetting(EnginePackageSettings.InternalTraceLevel, Options.InternalTraceLevel);
 
             // We use shadow copy so that the user may re-compile while the gui is running.
-            package.AddSetting(EnginePackageSettings.ShadowCopyFiles, true);
+            package.AddSetting(EnginePackageSettings.ShadowCopyFiles, false);
 
             foreach (var entry in PackageSettings)
                 package.AddSetting(entry.Key, entry.Value);
@@ -286,7 +305,7 @@ namespace NUnit.Gui.Model
             return package;
         }
 
-#endregion
+        #endregion
 
         public void RunAllTests()
         {
@@ -308,7 +327,7 @@ namespace NUnit.Gui.Model
         {
             Runner.StopRun(false);
         }
-        
+
         public ResultNode GetResultForTest(TestNode testNode)
         {
             if (testNode != null)
@@ -326,13 +345,13 @@ namespace NUnit.Gui.Model
             SelectedItemChanged?.Invoke(new TestItemEventArgs(testItem));
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region IServiceLocator Members
+        #region IServiceLocator Members
 
-        public T GetService<T>() where T: class
+        public T GetService<T>() where T : class
         {
             return _testEngine.Services.GetService<T>();
         }
@@ -342,9 +361,9 @@ namespace NUnit.Gui.Model
             return _testEngine.Services.GetService(serviceType);
         }
 
-#endregion
+        #endregion
 
-#region ITestEventListener Members
+        #region ITestEventListener Members
 
         public void OnTestEvent(string report)
         {
@@ -384,6 +403,6 @@ namespace NUnit.Gui.Model
             }
         }
 
-#endregion
+        #endregion
     }
 }

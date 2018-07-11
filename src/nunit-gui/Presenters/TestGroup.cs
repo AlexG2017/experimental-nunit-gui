@@ -56,7 +56,7 @@ namespace NUnit.Gui.Presenters
 
         public int ImageIndex { get; set; }
 
-        public TreeNode TreeNode { get; set;  }
+        public TreeNode TreeNode { get; set; }
 
         #endregion
 
@@ -65,8 +65,12 @@ namespace NUnit.Gui.Presenters
             StringBuilder sb = new StringBuilder("<filter><or>");
 
             foreach (TestNode test in this)
-                if (test.RunState != RunState.Explicit)
+            {
+                if (test.RunState != RunState.Explicit && test.CanRun())
+                {
                     sb.AppendFormat("<id>{0}</id>", test.Id);
+                }
+            }
 
             sb.Append("</or></filter>");
 

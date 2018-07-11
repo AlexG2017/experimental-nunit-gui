@@ -29,7 +29,7 @@ namespace NUnit.UiKit.Elements
     /// </summary>
     public interface IChecked
     {
-        bool Checked { get; }
+        bool Checked { get; set; }
 
         event CommandHandler CheckedChanged;
     }
